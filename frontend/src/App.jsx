@@ -5,8 +5,7 @@ import { CubeProvider } from '@cubejs-client/react';
 import WebSocketTransport from '@cubejs-client/ws-transport';
 import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
-import CubeTable from './components/CubeTable';
-import CubeCharts from './components/CubeCharts';
+import CubeDashboard from './components/CubeDashboard';
 
 const API_URL = 'http://localhost:5000/api/products';
 
@@ -42,10 +41,8 @@ function App() {
   const handleSave = async (product) => {
     try {
       if (currentProduct) {
-        // Update
         await axios.put(`${API_URL}/${currentProduct.id}`, product);
       } else {
-        // Create
         await axios.post(API_URL, product);
       }
       setCurrentProduct(null);
@@ -81,7 +78,7 @@ function App() {
         quantity,
         unitPrice
       });
-      fetchProducts(); // Refresh to get updated raw linked lists
+      fetchProducts();
     } catch (error) {
       console.error('Error logging sale:', error);
     }
@@ -95,8 +92,8 @@ function App() {
           <p>Premium CRUD Dashboard</p>
         </div>
 
-        {/* Dashboard Placeholder */}
-        <CubeCharts />
+        {/* Dashboard module — tự quản lý cross-filter nội bộ */}
+        <CubeDashboard />
 
         <ProductForm 
           onSave={handleSave} 
@@ -104,18 +101,16 @@ function App() {
           onCancel={handleCancel}
         />
 
-      <CubeTable />
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>Loading products...</div>
-      ) : (
-        <ProductList 
-          products={products} 
-          onEdit={handleEdit} 
-          onDelete={handleDelete} 
-          onAddSale={handleAddSale}
-        />
-      )}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>Loading products...</div>
+        ) : (
+          <ProductList 
+            products={products} 
+            onEdit={handleEdit} 
+            onDelete={handleDelete} 
+            onAddSale={handleAddSale}
+          />
+        )}
       </div>
     </CubeProvider>
   );
