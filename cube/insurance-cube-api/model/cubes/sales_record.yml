@@ -10,7 +10,6 @@ cubes:
 
     joins:
       - name: product
-        # 2. Đã fix: Ngoặc nhọn đúng chuẩn và dùng belongsTo
         sql: "{CUBE}.\"productId\" = {product}.id"
         relationship: belongsTo
 
