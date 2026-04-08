@@ -1,7 +1,8 @@
 import React from 'react';
 import { useCubeQuery } from '@cubejs-client/react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  PieChart, Pie, Legend
 } from 'recharts';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#7c3aed'];
@@ -67,6 +68,16 @@ export default function CubeCharts() {
     revenue: Number(row['sales_record.totalRevenue']) || 0,
   }));
 
+  // Tính tổng doanh thu & tỉ lệ % cho PieChart
+  const totalRevenueSum = chartData.reduce((sum, item) => sum + item.revenue, 0);
+  const pieData = chartData
+    .filter(item => item.revenue > 0)
+    .map(item => ({
+      name: item.name,
+      value: item.revenue,
+      pct: totalRevenueSum > 0 ? ((item.revenue / totalRevenueSum) * 100).toFixed(1) : 0,
+    }));
+
   const CustomTooltip = ({ active, payload, label, suffix }) => {
     if (active && payload && payload.length) {
       return (
@@ -87,6 +98,43 @@ export default function CubeCharts() {
       );
     }
     return null;
+  };
+
+  // Custom label cho PieChart: hiển thị tên + %
+  const renderCustomLabel = ({ cx, cy, midAngle, outerRadius, percent, name }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 28;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const pctValue = (percent * 100).toFixed(1);
+    if (percent < 0.04) return null; // Ẩn label quá nhỏ (< 4%)
+    return (
+      <text x={x} y={y} fill="#e2e8f0" textAnchor={x > cx ? 'start' : 'end'}
+            dominantBaseline="central" fontSize={12} fontWeight={500}>
+        {name} ({pctValue}%)
+      </text>
+    );
+  };
+
+  // Custom Tooltip cho PieChart
+  const PieTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const item = payload[0];
+    return (
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.95)',
+        border: '1px solid rgba(255,255,255,0.15)',
+        borderRadius: '8px',
+        padding: '10px 14px',
+        color: '#f8fafc',
+        fontSize: '0.85rem',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
+      }}>
+        <p style={{ fontWeight: 600, marginBottom: 4, color: item.payload.fill }}>{item.name}</p>
+        <p>Doanh thu: <strong>${item.value.toLocaleString()}</strong></p>
+        <p>Tỉ lệ: <strong>{item.payload.pct}%</strong></p>
+      </div>
+    );
   };
 
   return (
@@ -161,6 +209,50 @@ export default function CubeCharts() {
                 ))}
               </Bar>
             </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Chart 3: Pie Chart — Tỉ lệ doanh thu */}
+      <div className="glass-card chart-placeholder" style={{ gridColumn: '1 / -1' }}>
+        <div className="chart-header">
+          <h3>🥧 Tỉ lệ doanh thu theo Sản phẩm</h3>
+          <p>Revenue Share by Product <span style={{fontSize: '0.75rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding:'2px 6px', borderRadius:'8px', marginLeft:'6px'}}>⚡ Real-time</span></p>
+        </div>
+        {pieData.length === 0 ? (
+          <div className="chart-body empty-chart">
+            <span>Chưa có dữ liệu doanh thu</span>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={340}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={70}
+                outerRadius={120}
+                paddingAngle={3}
+                dataKey="value"
+                nameKey="name"
+                label={renderCustomLabel}
+                animationBegin={0}
+                animationDuration={800}
+                stroke="rgba(15, 23, 42, 0.8)"
+                strokeWidth={2}
+              >
+                {pieData.map((_, index) => (
+                  <Cell key={`pie-cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip content={<PieTooltip />} />
+              <Legend
+                iconType="circle"
+                iconSize={10}
+                wrapperStyle={{ color: '#94a3b8', fontSize: '0.85rem', paddingTop: '12px' }}
+                formatter={(value) => <span style={{ color: '#cbd5e1', marginLeft: 4 }}>{value}</span>}
+              />
+            </PieChart>
           </ResponsiveContainer>
         )}
       </div>
