@@ -5,13 +5,14 @@ cubes:
     data_source: default
 
     refresh_key:
-      sql: "SELECT COUNT(*) FROM public.\"SalesRecord\""
+      sql: "SELECT MAX(id) FROM public.\"SalesRecord\""
       every: 5 second
 
     joins:
       - name: product
-        sql: "{CUBE}.\"productId\" = {product.id}"
-        relationship: many_to_one
+        # 2. Đã fix: Ngoặc nhọn đúng chuẩn và dùng belongsTo
+        sql: "{CUBE}.\"productId\" = {product}.id"
+        relationship: belongsTo
 
     dimensions:
       - name: id
