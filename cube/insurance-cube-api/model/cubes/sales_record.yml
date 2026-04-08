@@ -58,4 +58,7 @@ cubes:
         dimensions:
           - product.name
           - quantity
-    
+        time_dimension: saledate
+        granularity: minute
+        refresh_key:
+          every: 5 second

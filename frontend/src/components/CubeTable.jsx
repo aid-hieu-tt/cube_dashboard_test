@@ -10,7 +10,7 @@ export default function CubeTable() {
       measures: ['product.price', 'sales_record.totalQuantity', 'sales_record.totalRevenue'],
       dimensions: ['product.name', 'sales_record.quantity'],
       timeDimensions: [
-        { dimension: 'product.createdat', granularity: 'minute' },
+        { dimension: 'sales_record.saledate', granularity: 'minute' },
       ],
     },
     { subscribe: true }
@@ -48,7 +48,7 @@ export default function CubeTable() {
           <thead>
             <tr>
               <th>Tên Sản phẩm</th>
-              <th>Thời gian (createdAt)</th>
+              <th>Ngày bán (saleDate)</th>
               <th>Raw Quantity</th>
               <th>Price (AVG)</th>
               <th>∑ Total Quantity</th>
@@ -78,7 +78,7 @@ export default function CubeTable() {
                       }}>
                     <td style={{ fontWeight: isSelected ? 700 : 400 }}>{productName}</td>
                     <td style={{ color: '#94a3b8' }}>
-                      {row['product.createdat'] ? String(row['product.createdat']).substring(0, 16).replace('T', ' ') : ''}
+                      {row['sales_record.saledate.minute'] ? String(row['sales_record.saledate.minute']).substring(0, 16).replace('T', ' ') : ''}
                     </td>
                     <td>{row['sales_record.quantity']}</td>
                     <td>{row['product.price']}</td>
