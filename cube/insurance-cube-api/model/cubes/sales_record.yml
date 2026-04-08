@@ -1,0 +1,61 @@
+cubes:
+  - name: sales_record
+    sql_table: "public.\"SalesRecord\""
+    sql_alias: sr
+    data_source: default
+
+    refresh_key:
+      sql: "SELECT COUNT(*) FROM public.\"SalesRecord\""
+      every: 5 second
+
+    joins:
+      - name: product
+        sql: "{CUBE}.\"productId\" = {product.id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+
+      - name: saledate
+        sql: "{CUBE}.\"saleDate\""
+        type: time
+
+      - name: quantity
+        sql: quantity
+        type: number
+
+      - name: unitprice
+        sql: "{CUBE}.\"unitPrice\""
+        type: number
+
+    measures:
+      - name: count
+        type: count
+
+      - name: totalQuantity
+        sql: quantity
+        type: sum
+
+      - name: avgUnitPrice
+        sql: "{CUBE}.\"unitPrice\""
+        type: avg
+
+      - name: totalRevenue
+        sql: "{CUBE}.quantity * {CUBE}.\"unitPrice\""
+        type: sum
+        format: currency
+
+    pre_aggregations:
+      - name: main_rollup
+        type: rollup
+        measures:
+          - totalQuantity
+          - totalRevenue
+          - product.price
+        dimensions:
+          - product.name
+          - quantity
+    

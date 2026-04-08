@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_crud_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: crud_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - crud_pgdata:/var/lib/postgresql/data
+
+volumes:
+  crud_pgdata:
