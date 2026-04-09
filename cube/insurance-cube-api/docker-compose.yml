@@ -1,16 +1,13 @@
-
-version: '2.2'
-
 services:
-  cube:
-    image: cubejs/cube:v1.6.32
+  cubestore:
+    image: cubejs/cubestore:latest
+    container_name: cubestore
     ports:
-      # It's better to use random port binding for 4000/3000 ports
-      # without it you will not able to start multiple projects inside docker
-      - 4000:4000  # Cube API and Developer Playground
-      - 3000:3000  # Dashboard app, if created
-    env_file: .env
+      - "3030:3030"   # CubeStore HTTP API
+      - "3306:3306"   # CubeStore SQL API (MySQL protocol)
+    environment:
+      - CUBESTORE_REMOTE_DIR=/cube/data
+      - CUBESTORE_SERVER_NAME=cubestore:3306
     volumes:
-      - .:/cube/conf
-      # We ignore Cube deps, because they are built-in inside the official Docker image
-      - .empty:/cube/conf/node_modules/@cubejs-backend/
+      - ./.cubestore/data:/cube/data
+    restart: unless-stopped

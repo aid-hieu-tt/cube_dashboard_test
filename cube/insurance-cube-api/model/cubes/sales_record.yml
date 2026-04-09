@@ -51,6 +51,7 @@ cubes:
     pre_aggregations:
       - name: main_rollup
         type: rollup
+        external: true
         measures:
           - totalQuantity
           - totalRevenue
@@ -60,3 +61,16 @@ cubes:
           - quantity
         time_dimension: saledate
         granularity: minute
+
+      - name: no_time_rollup
+        type: rollup
+        external: true
+        measures:
+          - count
+          - totalQuantity
+          - totalRevenue
+          - avgUnitPrice
+          - product.price
+        dimensions:
+          - product.name
+          - quantity
